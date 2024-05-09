@@ -1,0 +1,24 @@
+import styles from "./Footer.module.css";
+
+function Footer (){
+    return (
+        <div className={styles.container}>
+        <nav className={styles.navbar}>
+            <div>
+            <hl className={styles.navbar__brand}>Covid ID</hl>
+            <h3 className={styles.navbar__brand_List}>Developed By Yaasir</h3>
+            </div>
+            <div>
+            <ul className={styles.navbar__list}>
+                <li className={styles.navbar__item}>Global</li>
+                <li className={styles.navbar__item}>Indonesia</li>
+                <li className={styles.navbar__item}>Provinsi</li>
+                <li className={styles.navbar__item}>About</li>
+            </ul>
+            </div>
+        </nav>
+    </div>
+    );
+}
+
+export default Footer;
