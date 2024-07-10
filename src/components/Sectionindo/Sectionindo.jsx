@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import CountItem from "../count/count.jsx";
 
+// Styled components
 const StyledCount = {
   Container: styled.div`
     background-color: #ebecec;
@@ -16,17 +16,13 @@ const StyledCount = {
       padding: 0.5rem;
     }
 
-    @media (min-width: 768px) {
-      padding: 0.5rem;
-    }
-
     @media (min-width: 992px) {
       padding: 1rem;
     }
   `,
-  Title: styled.h1`
+  ContainerTitle: styled.h1`
     text-align: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #06d6a0;
 
     @media (min-width: 992px) {
@@ -34,14 +30,20 @@ const StyledCount = {
       margin-bottom: 1rem;
     }
   `,
-  TitleDesc: styled.h4`
+  ContainerTitleDesc: styled.h4`
     text-align: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #118AB2;
+
+    @media (min-width: 992px) {
+      font-size: 1.5rem;
+    }
   `,
-  CardContainer: styled.div`
+  ContainerCard: styled.div`
     display: flex;
-    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; 
 
     @media (max-width: 767px) {
       flex-direction: column;
@@ -76,16 +78,12 @@ const StyledCount = {
   `,
   CardTitle: styled.h2`
     text-align: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #06d6a0;
-
-    @media (max-width: 767px) {
-      font-size: 0.5rem;
-    }
   `,
   CardDesc: styled.p`
     text-align: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #EF476F;
     font-size: 1.2rem;
   `
@@ -96,20 +94,23 @@ function Count() {
 
   async function fetchCounts() {
     try {
-      const response = await fetch("https://covid-fe-2023.vercel.app/api/global.json");
+      const response = await fetch("https://covid-fe-2023.vercel.app/api/indonesia.json");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      if (data && data.global) {
-        const globalCounts = data.global.map(item => ({
-          status: item.status,
-          total: item.total.toLocaleString() 
-        }));
-        setCounts(globalCounts);
-      } else {
-        throw new Error('Data structure is not as expected');
-      }
+
+      const filteredCounts = data.indonesia.filter(item => (
+        item.status === "confirmed" || item.status === "recovered" || item.status === "death"
+      ));
+
+      // Format numbers to be displayed nicely
+      const formattedCounts = filteredCounts.map(item => ({
+        status: item.status,
+        total: item.total.toLocaleString()
+      }));
+
+      setCounts(formattedCounts);
     } catch (error) {
       console.error('Error fetching data:', error);
       setCounts([]); 
@@ -122,19 +123,21 @@ function Count() {
 
   return (
     <StyledCount.Container>
-      <div>
-        <StyledCount.Title>Global Situation</StyledCount.Title>
-        <StyledCount.TitleDesc>Data Covid Berdasarkan Global</StyledCount.TitleDesc>
-      </div>
-      <StyledCount.CardContainer>
+      <StyledCount.ContainerTitle>Indonesia Situation</StyledCount.ContainerTitle>
+      <StyledCount.ContainerTitleDesc>Data Covid Berdasarkan Indonesia</StyledCount.ContainerTitleDesc>
+      
+      <StyledCount.ContainerCard>
         {counts.length > 0 ? (
           counts.map(count => (
-            <CountItem key={count.status} count={count} />
+            <StyledCount.Card key={count.status}>
+              <StyledCount.CardTitle>{count.status}</StyledCount.CardTitle>
+              <StyledCount.CardDesc>{count.total}</StyledCount.CardDesc>
+            </StyledCount.Card>
           ))
         ) : (
           <p>Loading...</p>
         )}
-      </StyledCount.CardContainer>
+      </StyledCount.ContainerCard>
     </StyledCount.Container>
   );
 }
